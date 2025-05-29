@@ -12,7 +12,7 @@ let drawDoorX = 0, drawDoorY = 0; //문의 위치
 let characterImg = ['', ''];
 let characterX = 100; // 캐릭터의 초기 X 위치
 let cameraX = 0; // 카메라의 초기 X 위치
-let speed = 15; // 캐릭터의 속도도
+let speed = 5; // 캐릭터의 속도도
 let viewWidth;
 
 let showWarningText = false;
