@@ -12,11 +12,14 @@ let drawDoorX = 0, drawDoorY = 0; //문의 위치
 let characterImg = ['', ''];
 let characterX = 100; // 캐릭터의 초기 X 위치
 let cameraX = 0; // 카메라의 초기 X 위치
-let speed = 5; // 캐릭터의 속도도
+let speed = 15; // 캐릭터의 속도도
 let viewWidth;
 
 let showWarningText = false;
 let warningStartTime = 0;
+let showClosed = false;
+let a = 0;
+let startTime = 0;
 const WARNING_DURATION = 2000; // 2초 동안 경고 메시지 띄움움
 
 p.preload = function() {
@@ -34,6 +37,7 @@ p.setup = function() {
     // window를 사용해서 전역(파일 전체)에서 공유하는 변수들 설정정
     characterX = window.state.characterX !== undefined ? window.state.characterX : 100;
     cameraX = window.state.cameraX !== undefined ? window.state.cameraX : 0;
+    startTime = p.millis();
 };
 
 p.draw = function() {
@@ -58,9 +62,19 @@ p.draw = function() {
     drawDesk(); // 책상을 그리는 함수
     drawCharacter(); // 캐릭터를 그리는 함수
 
-    if (showWarningText) {
+    if (p.millis() - startTime < WARNING_DURATION) {
+        drawText("좌우 화살표를 이용해서 캐릭터를 움직이세요!");
+    }
+    
+    if (showClosed) {
+        if (p.millis() - a < WARNING_DURATION) {
+            drawText("문을 클릭해서 열어야 다음 장면으로 넘어가요!");
+        } else {
+            showClosed = false;
+        }  
+    } else if (showWarningText) {
         if (p.millis() - warningStartTime < WARNING_DURATION) {
-            drawWarningText();
+            drawText("책상에서 교통카드나 운전면허증을 가져와야 해요!");
         } else {
             showWarningText = false;
         }  
@@ -140,17 +154,21 @@ function drawCharacter() {
         // 캐릭터가 이미지 범위 밖으로 못 나가게
         characterX = p.constrain(characterX, 0, houseImg.width);
 
-        if (doorOpen && characterX >= houseImg.width - doorImg[0].width) {
-            if (window.state.selectedItem === ""){
-                showWarningText = true;
-                warningStartTime = p.millis();
+        if (characterX >= houseImg.width - doorImg[0].width) {
+            if (doorOpen) {
+                if (window.state.selectedItem === ""){
+                    showWarningText = true;
+                    warningStartTime = p.millis();
+                } else {
+                    window.state.characterX = 100;
+                    window.state.cameraX = 0;
+                    
+                    window.dispatchEvent(new Event("goToPark"))
+                }
             } else {
-                window.state.characterX = 100;
-                window.state.cameraX = 0;
-                
-                window.dispatchEvent(new Event("goToPark"))
+                showClosed = true;
+                a = p.millis();
             }
-            
         };
     }
 
@@ -164,7 +182,7 @@ function drawCharacter() {
 // 교통카드나 운전면허증을 챙기지 않고 문을 열고 밖을 나갈 때 작동함.
 // showWarningText 으로 메시지를 띄워야 하는 지 조절
 // warningStartTime, WARNING_DURATION 으로 시간 조절
-function drawWarningText() {
+function drawText(message) {
     let drawX = characterX - cameraX + 100;
     let drawY = p.height - 330; // 머리 위
     p.push();
@@ -172,7 +190,7 @@ function drawWarningText() {
     p.textSize(28);
     p.stroke(255); p.strokeWeight(7);
     p.fill(255, 0, 0);
-    p.text("책상에서 교통카드나 운전면허증을 가져와야 해요!", drawX, drawY);
+    p.text(message, drawX, drawY);
     p.pop();
 }
 
