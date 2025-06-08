@@ -1,19 +1,4 @@
-import { makeStartSketch } from "./start.js"; // 다른 파일에 있는 함수를 가져옴옴
-import { makeHouseSketch } from "./house.js"; // 추가
-import { makeDeskSketch } from "./desk.js"; // 추가
-import { makeParkSketch } from "./park.js";
-import { makeCoffeeSHopSketch } from "./coffeeShop.js";
-import { makeCarInsideSketch } from "./carInside.js"; // 다른 파일에 있는 함수를 가져옴옴
-import { makeContrastSketch } from "./contrast.js"; // 추가
-import { makeCompanySketch } from "./company.js"; // 추가
-import { makeEndingcreditSketch } from "./endingcredit.js"; // 추가
-import { make교통통Sketch } from "./sketch.js"; 
-
-
-window.state = window.state || {}; // 모든 파일에서 사용가능한 변수들들(객체를 이용) -> 파이썬의 딕셔너리 생각하면 좋다!
-window.state.characterX = 100; // window.state의 사용법 (캐릭터의 위치를 저장)
-window.state.cameraX = 0;
-window.state.selectedItem = "";
+import { SCENE_MAP, EVENT_TO_SCENE } from './scenes/index.js';
 
 let currentP5 = null;
 
@@ -23,26 +8,24 @@ function launchScene(sceneName) {
     currentP5.remove();
     currentP5 = null;
   }
-  if (sceneName === "start") currentP5 = new p5(makeStartSketch(), "canvas-container"); // 캔버스 그리기기
-  else if (sceneName === "house") currentP5 = new p5(makeHouseSketch(), "canvas-container");
-  else if (sceneName === "desk") currentP5 = new p5(makeDeskSketch(), "canvas-container");
-  else if (sceneName === "park") currentP5 = new p5(makeParkSketch(), "canvas-container");
-  else if (sceneName === "coffeeShop") currentP5 = new p5(makeCoffeeSHopSketch(), "canvas-container");
-  else if (sceneName === "carInside") currentP5 = new p5(makeCarInsideSketch(), "canvas-container"); // 캔버스 그리기기
-  else if (sceneName === "contrast") currentP5 = new p5(makeContrastSketch(), "canvas-container");
-  else if (sceneName === "company") currentP5 = new p5(makeCompanySketch(), "canvas-container");
-  else if (sceneName === "endingcredit") currentP5 = new p5(makeEndingcreditSketch(), "canvas-container");
-  else if (sceneName === "sketch") currentP5 = new p5(make교통통Sketch(), "canvas-container");
+  if (SCENE_MAP[sceneName]) {
+    currentP5 = new p5(SCENE_MAP[sceneName](), "canvas-container");
+  }
 }
 
-window.addEventListener("goToHouse", () => launchScene("house")); // 다른 파일에서 window.dispatchEvent(new Event("goToHouse")); 명령문이 작동하면 launchScene("house")함수 호출 -> 장면 전환환
-window.addEventListener("goToDesk", () => launchScene("desk"));
-window.addEventListener("goToPark", () => launchScene("park"));
-window.addEventListener("goToCoffeeShop", () => launchScene("coffeeShop"));
-window.addEventListener("goToContrast", () => launchScene("contrast"));
-window.addEventListener("goToCompany", () => launchScene("company"));
-window.addEventListener("goToEndingcredit", () => launchScene("endingcredit"));
-window.addEventListener("goToCar", () => launchScene("carInside"));
-window.addEventListener("goToStair", () => launchScene("sketch"));
+Object.entries(EVENT_TO_SCENE).forEach(([eventName, sceneName]) => {
+  window.addEventListener(eventName, () => launchScene(sceneName));
+});
 
-window.onload = () => launchScene("start"); //시작 시 start화면면
+
+window.onload = () => launchScene("start"); //시작 시 start화면
+
+window.state = window.state || {}; // 모든 파일에서 사용가능한 변수들들(객체를 이용) -> 파이썬의 딕셔너리 생각하면 좋다!
+window.state.characterX = 100; // window.state의 사용법 (캐릭터의 위치를 저장)
+window.state.cameraX = 0;
+window.state.selectedItem = "";
+window.state.ending = [false, false]; // 0은 자동차, 1은 지하철철
+window.state.doorOpen = false;
+window.state.getCoffee = false;
+window.state.coffeeType = 0;
+
